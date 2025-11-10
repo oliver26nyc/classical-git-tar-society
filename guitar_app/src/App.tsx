@@ -53,7 +53,7 @@ function App() {
           {/* Main App Layout */}
           <div className="app-container">
             <header className="app-header">
-              <h1>🎸 Classical Guitar Peg Society</h1>
+              <h1>🎼 Classical Guitar Peg Society</h1>
               <div className="wallet-balance-container">
                 <WalletMultiButton />
                 <TokenBalance />
