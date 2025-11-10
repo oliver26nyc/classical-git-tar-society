@@ -1,0 +1,32 @@
+# --- System & editor files ---
+.DS_Store
+.vscode/
+.idea/
+
+# --- Node / build outputs ---
+node_modules/
+dist/
+build/
+.cache/
+out/
+
+# --- Anchor / Solana build ---
+target/
+.anchor/
+**/target/
+
+# --- Keypairs and wallets ---
+**/id.json
+**/*-keypair.json
+**/keypair.json
+
+# --- Env / secrets ---
+.env
+.env.*
+!.env.example   # keep the template if you have one
+
+# --- Archives and backups ---
+**/orig/**
+
+# --- Misc ---
+*.log

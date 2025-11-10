@@ -108,11 +108,55 @@ body {
   margin: 10px 0;
 }
 
+/* Token Rewards Box */
+.token-rewards-box {
+  background-color: #2a2f38;
+  border: 2px solid #61dafb;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.token-rewards-box h3 {
+  margin: 0 0 10px 0;
+  color: #61dafb;
+  font-size: 1.2rem;
+}
+
+.token-rule {
+  font-size: 1.1rem;
+  color: #fff;
+  font-weight: bold;
+  margin: 0;
+}
+
 /* Wallet Button */
 .wallet-adapter-button {
   background-color: #61dafb !important;
   color: #282c34 !important;
   font-weight: bold !important;
+}
+
+/* Wallet Balance Container */
+.wallet-balance-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.balance-display {
+  background-color: #2a2f38;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 2px solid #61dafb;
+}
+
+.peg-balance {
+  color: #61dafb;
+  font-weight: bold;
+  font-size: 1rem;
+  white-space: nowrap;
 }
 
 /* --- STYLES FOR LAYOUT --- */

@@ -19,8 +19,9 @@ import "@solana/wallet-adapter-react-ui/styles.css";
 // Import components
 import { Contest } from "./components/Contest";
 import { UnderConstruction } from "./components/UnderConstruction";
+import { TokenBalance } from "./components/WalletBalance";
 
-type Page = "competition" | "composer" | "sheet-music" | "lesson-hub";
+type Page = "competition" | "composer" | "sheet-music" | "lesson-hub" | "discussion";
 
 function App() {
   const network = WalletAdapterNetwork.Devnet;
@@ -33,11 +34,13 @@ function App() {
       case "competition":
         return <Contest />;
       case "composer":
-        return <UnderConstruction pageName="Composer Studio" />;
+        return <UnderConstruction pageName="Composer Studio" tokenRule="1 published composition = 3 PEG" />;
       case "sheet-music":
-        return <UnderConstruction pageName="Sheet Music Exchange" />;
+        return <UnderConstruction pageName="Sheet Music Exchange" tokenRule="1 sheet = 1 PEG" />;
       case "lesson-hub":
-        return <UnderConstruction pageName="Lesson Hub" />;
+        return <UnderConstruction pageName="Lesson Hub" tokenRule="1 booked lesson = 3 PEG" />;
+      case "discussion":
+        return <UnderConstruction pageName="Discussion Forum" tokenRule="Active participation earns PEG tokens" />;
       default:
         return <Contest />;
     }
@@ -51,7 +54,10 @@ function App() {
           <div className="app-container">
             <header className="app-header">
               <h1>🎸 Classical Guitar Peg Society</h1>
-              <WalletMultiButton />
+              <div className="wallet-balance-container">
+                <WalletMultiButton />
+                <TokenBalance />
+              </div>
             </header>
             
             <div className="app-body">
@@ -81,6 +87,12 @@ function App() {
                     onClick={() => setCurrentPage("lesson-hub")}
                   >
                     Lesson Hub
+                  </button>
+                  <button
+                    className={`nav-item ${currentPage === "discussion" ? "active" : ""}`}
+                    onClick={() => setCurrentPage("discussion")}
+                  >
+                    Discussion Forum
                   </button>
                 </nav>
               </aside>

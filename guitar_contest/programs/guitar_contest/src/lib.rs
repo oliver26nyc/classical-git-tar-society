@@ -1,4 +1,6 @@
 use anchor_lang::prelude::*;
+use anchor_spl::token::{self, Mint, Token, TokenAccount, MintTo};
+use anchor_spl::associated_token::AssociatedToken;
 
 declare_id!("2Hg6qeZGBsMPDDM1RY65Ucwk5JbLrF3D3P9qdYbEfmSU");
 
@@ -36,13 +38,12 @@ pub mod guitar_contest {
 
     /// Instruction 2: Allows a user to vote for a submission.
     /// This instruction uses a PDA (VoteReceipt) to prevent double voting.
-    /// Now also awards 3 PEG tokens to the voter's UserProfile PDA (NEW)
+    /// Now also awards 3 PEG tokens to the performer (minted from the PEG token)
     pub fn vote(ctx: Context<Vote>) -> Result<()> {
         // We get the submission account from the context and increment its vote count
         let submission = &mut ctx.accounts.submission;
         let user_profile = &mut ctx.accounts.user_profile;
         let performer_profile = &mut ctx.accounts.performer_profile;
-
 
         // If this is the first time the user is interacting,
         // their authority will be the default (all zeros). Let's set it.
@@ -63,12 +64,34 @@ pub mod guitar_contest {
             performer_profile.authority = submission.contestant;
         }
 
-        // Reward the performer with 3 PEG tokens (New)
-        performer_profile.peg_balance += 3; 
+        // Reward the performer with 3 PEG tokens (increment counter)
+        performer_profile.peg_balance += 3;
+
+        // Mint 3 actual PEG tokens to the performer's token account
+        let peg_amount = 3 * 10u64.pow(ctx.accounts.peg_mint.decimals as u32); // Account for decimals
+        
+        // Create the seeds for the mint authority PDA
+        let seeds = &[
+            b"mint_authority".as_ref(),
+            &[ctx.bumps.mint_authority],
+        ];
+        let signer_seeds = &[&seeds[..]];
+
+        // Mint tokens using CPI to the SPL Token program
+        let cpi_accounts = MintTo {
+            mint: ctx.accounts.peg_mint.to_account_info(),
+            to: ctx.accounts.performer_token_account.to_account_info(),
+            authority: ctx.accounts.mint_authority.to_account_info(),
+        };
+        let cpi_program = ctx.accounts.token_program.to_account_info();
+        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
+        
+        token::mint_to(cpi_ctx, peg_amount)?;
 
         msg!("Vote successful for submission: {}", submission.key());
         msg!("Total votes: {}", submission.vote_count);
         msg!("Performer {} now has {} PEG.", performer_profile.authority, performer_profile.peg_balance);
+        msg!("Minted {} PEG tokens to performer's token account", peg_amount);
 
         Ok(())
     }
@@ -88,6 +111,72 @@ pub mod guitar_contest {
         msg!("Submission updated!");
         msg!("New Title: {}", submission.title);
         msg!("New YouTube ID: {}", submission.youtube_id);
+        Ok(())
+    }
+
+    /// Instruction 3: Transfer mint authority to the program's PDA
+    /// This allows the program to mint PEG tokens as rewards
+    pub fn transfer_mint_authority(ctx: Context<TransferMintAuthority>) -> Result<()> {
+        // Transfer the mint authority from the current authority (signer)
+        // to the program's mint_authority PDA
+        let cpi_accounts = token::SetAuthority {
+            account_or_mint: ctx.accounts.peg_mint.to_account_info(),
+            current_authority: ctx.accounts.current_authority.to_account_info(),
+        };
+        let cpi_program = ctx.accounts.token_program.to_account_info();
+        let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
+        
+        token::set_authority(
+            cpi_ctx,
+            anchor_spl::token::spl_token::instruction::AuthorityType::MintTokens,
+            Some(ctx.accounts.mint_authority.key()),
+        )?;
+
+        msg!("Mint authority transferred to program PDA: {}", ctx.accounts.mint_authority.key());
+        Ok(())
+    }
+
+    /// Instruction 4: Backfill tokens for a submission based on existing votes
+    /// This is useful for rewarding performers who received votes before token minting was implemented
+    pub fn backfill_tokens(ctx: Context<BackfillTokens>) -> Result<()> {
+        let submission = &ctx.accounts.submission;
+        let performer_profile = &mut ctx.accounts.performer_profile;
+
+        // Initialize performer profile if needed
+        if performer_profile.authority == Pubkey::default() {
+            performer_profile.authority = submission.contestant;
+        }
+
+        // Calculate how many tokens to mint based on vote count
+        let votes = submission.vote_count;
+        let peg_amount = (votes * 3) * 10u64.pow(ctx.accounts.peg_mint.decimals as u32);
+
+        // Update the profile balance
+        performer_profile.peg_balance = performer_profile.peg_balance
+            .checked_add(votes * 3)
+            .ok_or(ErrorCode::Overflow)?;
+
+        // Create the seeds for the mint authority PDA
+        let seeds = &[
+            b"mint_authority".as_ref(),
+            &[ctx.bumps.mint_authority],
+        ];
+        let signer_seeds = &[&seeds[..]];
+
+        // Mint tokens using CPI to the SPL Token program
+        let cpi_accounts = MintTo {
+            mint: ctx.accounts.peg_mint.to_account_info(),
+            to: ctx.accounts.performer_token_account.to_account_info(),
+            authority: ctx.accounts.mint_authority.to_account_info(),
+        };
+        let cpi_program = ctx.accounts.token_program.to_account_info();
+        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
+        
+        token::mint_to(cpi_ctx, peg_amount)?;
+
+        msg!("Backfilled {} PEG tokens for {} votes", peg_amount, votes);
+        msg!("Performer {} now has {} PEG balance", performer_profile.authority, performer_profile.peg_balance);
+
         Ok(())
     }
 }
@@ -131,6 +220,7 @@ pub struct SubmissionAccount {
 // 2. ACCOUNTS & CONTEXTS FOR 'vote'
 // -----------------------------------------------------------------
 #[derive(Accounts)]
+#[instruction()]
 pub struct Vote<'info> {
     // We mark the submission as 'mut' because we are changing its `vote_count`
     #[account(mut)]
@@ -153,25 +243,60 @@ pub struct Vote<'info> {
     )]
     pub vote_receipt: Account<'info, VoteReceipt>,
 
-    // The profile account for the PERFORMER (the submission.contestant).
-    // The 'user' (voter) will pay the rent to create this if it's the
-    //  performer's first time receiving PEG.
+    // The voter's profile (for tracking purposes)
     #[account(
         init_if_needed,
         payer = user,
-        space = 8 + 32 + 8, // 8(disc) + 32(authority) + 8(peg_balance)
-        // The seeds are based on the PERFORMER's key, not the signer's key
-        seeds = [b"profile", submission.contestant.as_ref()],
+        space = 8 + 32 + 8,
+        seeds = [b"profile", user.key().as_ref()],
+        bump
+    )]
+    pub user_profile: Account<'info, UserProfile>,
+
+    /// The performer (contestant) - must match submission.contestant
+    /// CHECK: Verified via constraint
+    #[account(constraint = performer.key() == submission.contestant)]
+    pub performer: AccountInfo<'info>,
+
+    // The profile account for the PERFORMER
+    #[account(
+        init_if_needed,
+        payer = user,
+        space = 8 + 32 + 8,
+        seeds = [b"profile", performer.key().as_ref()],
         bump
     )]
     pub performer_profile: Account<'info, UserProfile>,
+
+    // The PEG token mint account
+    #[account(mut)]
+    pub peg_mint: Account<'info, Mint>,
+
+    // The performer's associated token account for PEG tokens
+    #[account(
+        init_if_needed,
+        payer = user,
+        associated_token::mint = peg_mint,
+        associated_token::authority = performer,
+    )]
+    pub performer_token_account: Account<'info, TokenAccount>,
+
+    // The mint authority PDA that can mint PEG tokens
+    /// CHECK: This is a PDA used as the mint authority
+    #[account(
+        seeds = [b"mint_authority"],
+        bump
+    )]
+    pub mint_authority: AccountInfo<'info>,
 
     // The 'user' is the voter
     #[account(mut)]
     pub user: Signer<'info>,
 
-    // The System Program is required to create the receipt account
+    // Required programs
     pub system_program: Program<'info, System>,
+    pub token_program: Program<'info, Token>,
+    pub associated_token_program: Program<'info, AssociatedToken>,
 }
 
 //// --- ADD NEW STRUCT FOR SUBMISSION UPDATE  ---
@@ -233,6 +358,86 @@ pub struct ManagePegs<'info> {
 pub enum ErrorCode {
     #[msg("Only the original contestant can update this submission.")]
     NotContestant,
+    #[msg("Arithmetic overflow occurred.")]
+    Overflow,
+}
+
+// -----------------------------------------------------------------
+// 5. ACCOUNTS & CONTEXTS FOR 'transfer_mint_authority'
+// -----------------------------------------------------------------
+#[derive(Accounts)]
+pub struct TransferMintAuthority<'info> {
+    // The PEG token mint account
+    #[account(mut)]
+    pub peg_mint: Account<'info, Mint>,
+
+    // The current mint authority (must sign this transaction)
+    pub current_authority: Signer<'info>,
+
+    // The mint authority PDA that will become the new mint authority
+    /// CHECK: This is a PDA that will become the mint authority
+    #[account(
+        seeds = [b"mint_authority"],
+        bump
+    )]
+    pub mint_authority: AccountInfo<'info>,
+
+    // The Token program
+    pub token_program: Program<'info, Token>,
+}
+
+// -----------------------------------------------------------------
+// 6. ACCOUNTS & CONTEXTS FOR 'backfill_tokens'
+// -----------------------------------------------------------------
+#[derive(Accounts)]
+pub struct BackfillTokens<'info> {
+    // The submission account (read-only to get vote count)
+    pub submission: Account<'info, SubmissionAccount>,
+
+    /// The performer (contestant) - must match submission.contestant
+    /// CHECK: Verified via constraint
+    #[account(constraint = performer.key() == submission.contestant)]
+    pub performer: AccountInfo<'info>,
+
+    // The performer's profile
+    #[account(
+        init_if_needed,
+        payer = payer,
+        space = 8 + 32 + 8,
+        seeds = [b"profile", performer.key().as_ref()],
+        bump
+    )]
+    pub performer_profile: Account<'info, UserProfile>,
+
+    // The PEG token mint account
+    #[account(mut)]
+    pub peg_mint: Account<'info, Mint>,
+
+    // The performer's associated token account for PEG tokens
+    #[account(
+        init_if_needed,
+        payer = payer,
+        associated_token::mint = peg_mint,
+        associated_token::authority = performer,
+    )]
+    pub performer_token_account: Account<'info, TokenAccount>,
+
+    // The mint authority PDA
+    /// CHECK: This is a PDA used as the mint authority
+    #[account(
+        seeds = [b"mint_authority"],
+        bump
+    )]
+    pub mint_authority: AccountInfo<'info>,
+
+    // The payer (you, the admin)
+    #[account(mut)]
+    pub payer: Signer<'info>,
+
+    // Required programs
+    pub system_program: Program<'info, System>,
+    pub token_program: Program<'info, Token>,
+    pub associated_token_program: Program<'info, AssociatedToken>,
 }
 
 

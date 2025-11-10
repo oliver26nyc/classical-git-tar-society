@@ -282,6 +282,11 @@ export const Contest = () => {
             {loading ? "Submitting..." : "Submit"}
           </button>
         </div>
+
+        <div className="token-rewards-box">
+          <h3>🪙 PEG Token Rewards</h3>
+          <p className="token-rule">1 vote = 3 PEG</p>
+        </div>
       </div>
     </div>
   );

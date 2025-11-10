@@ -18,6 +18,8 @@ wallet = "~/Dev/solana-camp.dev/my-solana-wallet/my-keypair.json" ### HW: Update
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 \"tests/**/*.ts\""
+transfer-mint-authority = "yarn run ts-node scripts/transfer-mint-authority.ts"
+backfill-tokens = "yarn run ts-node scripts/backfill-tokens.ts"
 
 
 
