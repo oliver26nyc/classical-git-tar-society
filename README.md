@@ -319,7 +319,7 @@ const balance = accountInfo.data.slice(64, 72).readBigUInt64LE(0) / 1e9;
 
 ```bash
 # Clone repository
-git clone https://github.com/hw053168/classical-git-tar-society.git
+git clone https://github.com/oliver26nyc/classical-git-tar-society.git
 cd classical-git-tar-society
 
 # Install frontend dependencies
@@ -435,11 +435,15 @@ This is a personal learning project. Suggestions and feedback are welcome!
 
 MIT
 
-## 👤 Author
+## 👥 Authors
 
 **hw053168**
 - GitHub: [@hw053168](https://github.com/hw053168)
-- Repository: [classical-git-tar-society](https://github.com/hw053168/classical-git-tar-society)
+
+**oliver26nyc**
+- GitHub: [@oliver26nyc](https://github.com/oliver26nyc)
+
+- Repository: [classical-git-tar-society](https://github.com/oliver26nyc/classical-git-tar-society)
 
 ---
 
