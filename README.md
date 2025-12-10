@@ -4,7 +4,7 @@ A decentralized platform for classical guitar performers built on Solana blockch
 
 ## 🎯 Project Overview
 
-The Classical Guitar Tar Society is a Web3 application that enables classical guitar performers to submit videos, receive votes from the community, and earn TAR tokens as rewards. The platform combines a React-based frontend with a Solana smart contract (Anchor program) to create a transparent, on-chain competition system.
+The Classical Git'Tar Society is a Web3 application that enables classical guitar performers to submit videos, receive votes from the community, and earn TAR tokens as rewards. The platform combines a React-based frontend with a Solana smart contract (Anchor program) to create a transparent, on-chain competition system featuring six main sections: Competition, Composer Studio, Sheet Music Exchange, Lesson Hub, Discussion Forum, and Quiz Bowl.
 
 ## 🏗️ Architecture
 
@@ -13,11 +13,12 @@ The Classical Guitar Tar Society is a Web3 application that enables classical gu
 - **Wallet Integration**: Solana Wallet Adapter
 - **Network**: Solana Devnet
 - **Key Features**:
-  - Multi-page navigation with sidebar
+  - Multi-page navigation with sidebar (6 main sections)
   - Real-time wallet connection
   - Token balance display
   - Video submission and voting interface
   - YouTube video embedding
+  - Placeholder pages for future features
 
 ### Backend (guitar_contest)
 - **Framework**: Anchor v0.32.1
@@ -36,12 +37,48 @@ The Classical Guitar Tar Society is a Web3 application that enables classical gu
 - **Sheet Music Exchange**: 1 sheet = 1 TAR (planned)
 - **Lesson Hub**: 1 booked lesson = 3 TAR (planned)
 - **Discussion Forum**: Active participation rewards (planned)
+- **Quiz Bowl**: Correct answers earn TAR tokens (planned)
 
 ### Token Features
 - Decimals: 9
 - Automatically minted to performers upon receiving votes
 - Displayed in real-time in user's wallet balance
 - Tracked both on-chain (actual SPL tokens) and in UserProfile PDA (counter)
+
+## 🎭 Platform Features
+
+### 1. Competition (Active)
+- Submit classical guitar performance videos via YouTube
+- Community voting system with double-vote prevention
+- Real-time vote counting
+- Earn 3 TAR tokens per vote received
+- Video embedding and display
+- Performer profile tracking
+
+### 2. Composer Studio (Placeholder)
+- *Coming Soon*: Platform for sharing original compositions
+- Planned reward: 3 TAR tokens per published composition
+- Will feature composition upload and community feedback
+
+### 3. Sheet Music Exchange (Placeholder)
+- *Coming Soon*: Marketplace for sharing and exchanging sheet music
+- Planned reward: 1 TAR token per sheet shared
+- Will enable PDF uploads and browsing
+
+### 4. Lesson Hub (Placeholder)
+- *Coming Soon*: Book lessons with experienced guitarists
+- Planned reward: 3 TAR tokens per booked lesson
+- Will feature instructor profiles and scheduling
+
+### 5. Discussion Forum (Placeholder)
+- *Coming Soon*: Community discussion and knowledge sharing
+- Planned reward: TAR tokens for active participation
+- Will include topics, threads, and reputation system
+
+### 6. Quiz Bowl (Placeholder)
+- *Coming Soon*: Classical guitar trivia and knowledge tests
+- Planned reward: TAR tokens for correct answers
+- Will feature timed quizzes and leaderboards
 
 ## 🚀 Development Journey
 
@@ -76,7 +113,8 @@ The Classical Guitar Tar Society is a Web3 application that enables classical gu
 
 3. **Navigation System**
    - Added left sidebar navigation
-   - Created 5 main tabs: Competition, Composer Studio, Sheet Music Exchange, Lesson Hub, Discussion Forum
+   - Created 6 main tabs: Competition, Composer Studio, Sheet Music Exchange, Lesson Hub, Discussion Forum, Quiz Bowl
+   - Implemented routing logic to switch between active components
    - Implemented UnderConstruction component for future pages
 
 ### Phase 3: SPL Token Integration
@@ -370,7 +408,8 @@ npm run dev
 - [x] Community voting with double-vote prevention
 - [x] SPL token minting on votes
 - [x] Token balance display
-- [x] Sidebar navigation
+- [x] Sidebar navigation with 6 tabs
+- [x] Placeholder pages for future features
 - [x] Mint authority transfer
 - [x] Retroactive token rewards (backfill)
 - [x] UserProfile tracking
@@ -382,10 +421,11 @@ npm run dev
 - [ ] Testing token minting with new votes
 
 ### Planned Features 📋
-- [ ] Composer Studio functionality
-- [ ] Sheet Music Exchange marketplace
-- [ ] Lesson Hub booking system
-- [ ] Discussion Forum with token rewards
+- [ ] Composer Studio: Composition upload and sharing
+- [ ] Sheet Music Exchange: PDF marketplace with search
+- [ ] Lesson Hub: Instructor profiles and booking calendar
+- [ ] Discussion Forum: Threading, replies, and moderation
+- [ ] Quiz Bowl: Trivia engine and scoring system
 - [ ] Profile pages for performers
 - [ ] Leaderboard system
 - [ ] NFT badges for achievements

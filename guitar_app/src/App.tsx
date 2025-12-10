@@ -21,7 +21,7 @@ import { Contest } from "./components/Contest";
 import { UnderConstruction } from "./components/UnderConstruction";
 import { TokenBalance } from "./components/WalletBalance";
 
-type Page = "competition" | "composer" | "sheet-music" | "lesson-hub" | "discussion";
+type Page = "competition" | "composer" | "sheet-music" | "lesson-hub" | "discussion" | "quiz-bowl";
 
 function App() {
   const network = WalletAdapterNetwork.Devnet;
@@ -41,6 +41,8 @@ function App() {
         return <UnderConstruction pageName="Lesson Hub" tokenRule="1 booked lesson = 3 TAR" />;
       case "discussion":
         return <UnderConstruction pageName="Discussion Forum" tokenRule="Active participation earns TAR tokens" />;
+      case "quiz-bowl":
+        return <UnderConstruction pageName="Quiz Bowl" tokenRule="Correct answers earn TAR tokens" />;
       default:
         return <Contest />;
     }
@@ -93,6 +95,12 @@ function App() {
                     onClick={() => setCurrentPage("discussion")}
                   >
                     Discussion Forum
+                  </button>
+                  <button
+                    className={`nav-item ${currentPage === "quiz-bowl" ? "active" : ""}`}
+                    onClick={() => setCurrentPage("quiz-bowl")}
+                  >
+                    Quiz Bowl
                   </button>
                 </nav>
               </aside>
