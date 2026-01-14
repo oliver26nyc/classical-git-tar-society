@@ -179,6 +179,72 @@ pub mod guitar_contest {
 
         Ok(())
     }
+
+    /// Instruction 5: Complete the quiz and claim reward
+    /// Awards 1 TAR token if user got 80%+ correct (4/5 questions)
+    /// Each account can only take the quiz once
+    pub fn complete_quiz(
+        ctx: Context<CompleteQuiz>,
+        total_questions: u64,
+        correct_answers: u64,
+    ) -> Result<()> {
+        let quiz_state = &mut ctx.accounts.quiz_state;
+        let user_profile = &mut ctx.accounts.user_profile;
+
+        // Initialize quiz state
+        quiz_state.user = ctx.accounts.user.key();
+        quiz_state.total_questions = total_questions;
+        quiz_state.correct_answers = correct_answers;
+        quiz_state.quiz_completed = true;
+
+        // Initialize user profile if needed
+        if user_profile.authority == Pubkey::default() {
+            user_profile.authority = ctx.accounts.user.key();
+        }
+
+        // Calculate percentage: 80% threshold (4/5 = 80%)
+        let percentage = (correct_answers * 100) / total_questions;
+        let passed = percentage >= 80;
+
+        msg!("Quiz completed: {}/{} correct ({}%)", correct_answers, total_questions, percentage);
+
+        if passed {
+            // Award 1 TAR token for passing
+            quiz_state.tokens_awarded = true;
+            
+            user_profile.tar_balance = user_profile.tar_balance
+                .checked_add(1)
+                .ok_or(ErrorCode::Overflow)?;
+
+            // Mint 1 actual TAR token to the user's token account
+            let tar_amount = 1 * 10u64.pow(ctx.accounts.tar_mint.decimals as u32);
+
+            // Create the seeds for the mint authority PDA
+            let seeds = &[
+                b"mint_authority".as_ref(),
+                &[ctx.bumps.mint_authority],
+            ];
+            let signer_seeds = &[&seeds[..]];
+
+            // Mint tokens using CPI to the SPL Token program
+            let cpi_accounts = MintTo {
+                mint: ctx.accounts.tar_mint.to_account_info(),
+                to: ctx.accounts.user_token_account.to_account_info(),
+                authority: ctx.accounts.mint_authority.to_account_info(),
+            };
+            let cpi_program = ctx.accounts.token_program.to_account_info();
+            let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
+            
+            token::mint_to(cpi_ctx, tar_amount)?;
+
+            msg!("Congratulations! You passed with {}%! Minted 1 TAR token.", percentage);
+        } else {
+            quiz_state.tokens_awarded = false;
+            msg!("You scored {}%. Need 80% to earn TAR. Better luck next time!", percentage);
+        }
+
+        Ok(())
+    }
 }
 
 // -----------------------------------------------------------------
@@ -445,6 +511,91 @@ pub struct BackfillTokens<'info> {
 // This is the data structure for our receipt (it's empty)
 #[account]
 pub struct VoteReceipt {}
+
+// -----------------------------------------------------------------
+// 7. QUIZ BOWL DATA STRUCTURES
+// -----------------------------------------------------------------
+
+// Quiz state account for tracking user progress
+// New rules: One-time quiz per account, 1 TAR for 80%+ correct (4/5 questions)
+#[account]
+pub struct QuizState {
+    pub user: Pubkey,
+    pub total_questions: u64,      // Total questions in the quiz (5)
+    pub correct_answers: u64,      // Number of correct answers
+    pub quiz_completed: bool,      // Has the user completed the quiz?
+    pub tokens_awarded: bool,      // Has the reward been claimed?
+}
+
+// Quiz completion receipt - prevents retaking the quiz
+#[account]
+pub struct QuizCompletionReceipt {}
+
+// -----------------------------------------------------------------
+// 8. ACCOUNTS & CONTEXTS FOR 'complete_quiz'
+// -----------------------------------------------------------------
+#[derive(Accounts)]
+pub struct CompleteQuiz<'info> {
+    // The user's quiz state - created on first (and only) completion
+    #[account(
+        init,
+        payer = user,
+        space = 8 + 32 + 8 + 8 + 1 + 1, // disc + user + total_questions + correct_answers + quiz_completed + tokens_awarded
+        seeds = [b"quiz_state", user.key().as_ref()],
+        bump
+    )]
+    pub quiz_state: Account<'info, QuizState>,
+
+    // Completion receipt - prevents retaking the quiz (PDA ensures one per user)
+    #[account(
+        init,
+        payer = user,
+        space = 8, // Just the discriminator
+        seeds = [b"quiz_completion", user.key().as_ref()],
+        bump
+    )]
+    pub completion_receipt: Account<'info, QuizCompletionReceipt>,
+
+    // The user's profile (for TAR balance tracking)
+    #[account(
+        init_if_needed,
+        payer = user,
+        space = 8 + 32 + 8,
+        seeds = [b"profile", user.key().as_ref()],
+        bump
+    )]
+    pub user_profile: Account<'info, UserProfile>,
+
+    // The TAR token mint account
+    #[account(mut)]
+    pub tar_mint: Account<'info, Mint>,
+
+    // The user's associated token account for TAR tokens
+    #[account(
+        init_if_needed,
+        payer = user,
+        associated_token::mint = tar_mint,
+        associated_token::authority = user,
+    )]
+    pub user_token_account: Account<'info, TokenAccount>,
+
+    // The mint authority PDA that can mint TAR tokens
+    /// CHECK: This is a PDA used as the mint authority
+    #[account(
+        seeds = [b"mint_authority"],
+        bump
+    )]
+    pub mint_authority: AccountInfo<'info>,
+
+    // The user completing the quiz
+    #[account(mut)]
+    pub user: Signer<'info>,
+
+    // Required programs
+    pub system_program: Program<'info, System>,
+    pub token_program: Program<'info, Token>,
+    pub associated_token_program: Program<'info, AssociatedToken>,
+}
 
 /*
 #[derive(Accounts)]

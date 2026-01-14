@@ -20,6 +20,7 @@ import "@solana/wallet-adapter-react-ui/styles.css";
 import { Contest } from "./components/Contest";
 import { UnderConstruction } from "./components/UnderConstruction";
 import { TokenBalance } from "./components/WalletBalance";
+import { QuizBowl } from "./components/QuizBowl";
 
 type Page = "competition" | "composer" | "sheet-music" | "lesson-hub" | "discussion" | "quiz-bowl";
 
@@ -42,7 +43,7 @@ function App() {
       case "discussion":
         return <UnderConstruction pageName="Discussion Forum" tokenRule="Active participation earns TAR tokens" />;
       case "quiz-bowl":
-        return <UnderConstruction pageName="Quiz Bowl" tokenRule="Correct answers earn TAR tokens" />;
+        return <QuizBowl />;
       default:
         return <Contest />;
     }

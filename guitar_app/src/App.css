@@ -82,7 +82,8 @@ body {
 /* Main Content Area */
 .main-content {
   flex: 1;
-  padding: 20px 40px;
+  padding: 20px 30px;
+  overflow-x: hidden;
   overflow-y: auto;
 }
 
@@ -175,8 +176,9 @@ body {
 }
 
 .form-container {
-  flex: 0 0 280px; /* Fixed width instead of flexible */
-  max-width: 280px; /* Narrower form */
+  flex: 0 0 320px; /* Fixed width - wider for leaderboard */
+  max-width: 320px;
+  min-width: 320px;
   
   /* --- THIS IS THE STICKY LOGIC --- */
   position: -webkit-sticky; /* For Safari */
@@ -282,3 +284,320 @@ body {
   background-color: #4a4e57;
   cursor: not-allowed;
 }
+
+/* --- QUIZ BOWL STYLES --- */
+.quiz-bowl-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.quiz-stats {
+  background-color: #2a2f38;
+  border: 2px solid #61dafb;
+  border-radius: 8px;
+  padding: 20px;
+  width: 100%;
+  text-align: center;
+}
+
+.quiz-stats h3 {
+  margin: 0 0 15px 0;
+  color: #61dafb;
+}
+
+.quiz-stats p {
+  margin: 5px 0;
+  color: #ccc;
+}
+
+.quiz-stats strong {
+  color: #fff;
+}
+
+.quiz-question-card {
+  background-color: #3a3f4a;
+  border-radius: 12px;
+  padding: 30px;
+  width: 100%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.question-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.question-number {
+  color: #61dafb;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.question-text {
+  font-size: 1.4rem;
+  margin: 0 0 25px 0;
+  line-height: 1.4;
+}
+
+.options-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.option-button {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px 20px;
+  background-color: #2a2f38;
+  border: 2px solid #4a4e57;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.option-button:hover:not(.disabled) {
+  border-color: #61dafb;
+  background-color: #353a45;
+}
+
+.option-button.selected {
+  border-color: #61dafb;
+  background-color: #2a3a4a;
+}
+
+.option-button.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.option-letter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background-color: #4a4e57;
+  border-radius: 50%;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.option-button.selected .option-letter {
+  background-color: #61dafb;
+  color: #282c34;
+}
+
+.feedback {
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.feedback.correct {
+  background-color: rgba(92, 184, 92, 0.2);
+  border: 2px solid #5cb85c;
+  color: #5cb85c;
+}
+
+.feedback.incorrect {
+  background-color: rgba(217, 83, 79, 0.2);
+  border: 2px solid #d9534f;
+  color: #d9534f;
+}
+
+.quiz-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+}
+
+.nav-button {
+  padding: 12px 20px;
+  background-color: #4a4e57;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.nav-button:hover:not(:disabled) {
+  background-color: #5a5e67;
+}
+
+.nav-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.submit-button {
+  padding: 12px 30px;
+  background-color: #61dafb;
+  border: none;
+  border-radius: 8px;
+  color: #282c34;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.submit-button:hover:not(:disabled) {
+  background-color: #4fc3f7;
+}
+
+.submit-button:disabled {
+  background-color: #4a4e57;
+  color: #888;
+  cursor: not-allowed;
+}
+
+.answered-badge {
+  padding: 12px 20px;
+  background-color: #5cb85c;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: bold;
+}
+/* --- END QUIZ BOWL STYLES --- */
+
+/* --- LEADERBOARD STYLES --- */
+.leaderboard-container {
+  background-color: #2a2f38;
+  border: 2px solid #61dafb;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.leaderboard-title {
+  margin: 0 0 15px 0;
+  color: #61dafb;
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.leaderboard-empty {
+  text-align: center;
+  color: #888;
+  font-style: italic;
+  padding: 20px;
+}
+
+.leaderboard-table {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.leaderboard-header {
+  display: flex;
+  padding: 10px 8px;
+  background-color: #1e2228;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 0.85rem;
+  color: #888;
+}
+
+.leaderboard-row {
+  display: flex;
+  padding: 10px 8px;
+  background-color: #353a45;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.leaderboard-row:hover {
+  background-color: #3a4050;
+}
+
+.leaderboard-row.current-user {
+  background-color: #2a3a4a;
+  border: 1px solid #61dafb;
+}
+
+.leaderboard-row.top-1 {
+  background: linear-gradient(90deg, #3a3f4a 0%, #4a4020 100%);
+}
+
+.leaderboard-row.top-2 {
+  background: linear-gradient(90deg, #3a3f4a 0%, #3a3a40 100%);
+}
+
+.leaderboard-row.top-3 {
+  background: linear-gradient(90deg, #3a3f4a 0%, #3a3020 100%);
+}
+
+.leaderboard-col {
+  display: flex;
+  align-items: center;
+}
+
+.leaderboard-col.rank {
+  flex: 0 0 40px;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.leaderboard-col.address {
+  flex: 1;
+  min-width: 0;
+  gap: 5px;
+}
+
+.leaderboard-col.label {
+  flex: 1.5;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #ccc;
+  font-size: 0.9rem;
+}
+
+.leaderboard-col.score {
+  flex: 0 0 60px;
+  justify-content: center;
+  font-weight: bold;
+  color: #61dafb;
+}
+
+.leaderboard-col.status {
+  flex: 0 0 80px;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+.leaderboard-col.status.passed {
+  color: #5cb85c;
+}
+
+.leaderboard-col.status.failed {
+  color: #d9534f;
+}
+
+.you-badge {
+  font-size: 0.75rem;
+  color: #61dafb;
+  font-weight: bold;
+}
+/* --- END LEADERBOARD STYLES --- */

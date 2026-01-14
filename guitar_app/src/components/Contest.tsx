@@ -1,16 +1,18 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 // We use useWallet (not useAnchorWallet)
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
-import { PublicKey, SystemProgram } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 
 // Correct imports for both the IDL and the Type
 import IDL from "../idl/guitar_contest.json";
 import type { GuitarContest } from "../types/guitar_contest.ts";
+import { Leaderboard, shortenAddress } from "./Leaderboard";
+import type { LeaderboardEntry } from "./Leaderboard";
 
-// --- !! UPDATE THIS IF IT'S DIFFERENT !! ---
-const PROGRAM_ID = new PublicKey("2Hg6qeZGBsMPDDM1RY65Ucwk5JbLrF3D3P9qdYbEfmSU");
+// --- Program ID (for reference) ---
+// const PROGRAM_ID = new PublicKey("2Hg6qeZGBsMPDDM1RY65Ucwk5JbLrF3D3P9qdYbEfmSU");
 // -------------------------------------------
 
 // Define the structure of a submission object, including its public key
@@ -228,6 +230,21 @@ export const Contest = () => {
   };
   // --- END NEW FUNCTION ---
 
+  // Compute leaderboard entries from submissions
+  const leaderboardEntries: LeaderboardEntry[] = useMemo(() => {
+    return submissions
+      .filter(s => s.account.voteCount.toNumber() > 0)
+      .sort((a, b) => b.account.voteCount.cmp(a.account.voteCount))
+      .slice(0, 10) // Top 10
+      .map((s, index) => ({
+        rank: index + 1,
+        address: shortenAddress(s.account.contestant.toBase58()),
+        fullAddress: s.account.contestant.toBase58(),
+        label: s.account.title,
+        score: s.account.voteCount.toNumber(),
+      }));
+  }, [submissions]);
+
   // Render this if the wallet isn't connected
   if (!wallet.publicKey) {
     return (
@@ -296,6 +313,15 @@ export const Contest = () => {
           <h3>🪙 TAR Token Rewards</h3>
           <p className="token-rule">1 vote = 3 TAR</p>
         </div>
+
+        {/* Leaderboard */}
+        <Leaderboard
+          title="🏆 Top Performers"
+          entries={leaderboardEntries}
+          scoreLabel="Votes"
+          emptyMessage="No votes yet. Be the first to vote!"
+          currentUserAddress={wallet.publicKey?.toBase58()}
+        />
       </div>
     </div>
   );
