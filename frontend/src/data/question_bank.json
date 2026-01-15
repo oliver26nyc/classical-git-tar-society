@@ -1,0 +1,652 @@
+[
+  {
+    "id": "composers_works_1",
+    "category": "composers_works",
+    "categoryName": "Composers & Masterpieces",
+    "question": "Who composed the iconic tremolo piece 'Recuerdos de la Alhambra'?",
+    "options": [
+      "Isaac Albéniz",
+      "Francisco Tárrega",
+      "Fernando Sor",
+      "Heitor Villa-Lobos"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "id": "composers_works_2",
+    "category": "composers_works",
+    "categoryName": "Composers & Masterpieces",
+    "question": "Which composer wrote the famous 'Concierto de Aranjuez' for guitar and orchestra?",
+    "options": [
+      "Joaquín Rodrigo",
+      "Manuel Ponce",
+      "Leo Brouwer",
+      "Agustín Barrios Mangoré"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "id": "composers_works_3",
+    "category": "composers_works",
+    "categoryName": "Composers & Masterpieces",
+    "question": "The popular classical guitar piece 'Asturias (Leyenda)' was originally composed for which instrument before becoming a staple of the guitar repertoire?",
+    "options": [
+      "Guitar",
+      "Piano",
+      "Violin",
+      "Lute"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "id": "composers_works_4",
+    "category": "composers_works",
+    "categoryName": "Composers & Masterpieces",
+    "question": "The demanding 'Chaconne' from the Partita No. 2 in D minor, often performed on classical guitar, was originally composed by J.S. Bach for which instrument?",
+    "options": [
+      "Lute",
+      "Harpsichord",
+      "Solo Violin",
+      "Cello"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "id": "composers_works_5",
+    "category": "composers_works",
+    "categoryName": "Composers & Masterpieces",
+    "question": "Which Brazilian composer wrote a set of Five Preludes and Twelve Études, considered essential works in the classical guitar repertoire?",
+    "options": [
+      "Leo Brouwer",
+      "Heitor Villa-Lobos",
+      "Radamés Gnattali",
+      "Antonio Carlos Jobim"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "id": "composers_works_6",
+    "category": "composers_works",
+    "categoryName": "Composers & Masterpieces",
+    "question": "'La Catedral', a significant three-movement work for solo guitar ('Preludio Saudade', 'Andante Religioso', 'Allegro Solemne'), was composed by:",
+    "options": [
+      "Agustín Barrios Mangoré",
+      "Manuel M. Ponce",
+      "Antonio Lauro",
+      "Mauro Giuliani"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "id": "composers_works_7",
+    "category": "composers_works",
+    "categoryName": "Composers & Masterpieces",
+    "question": "Fernando Sor's 'Introduction and Variations on a Theme by Mozart, Op. 9' is based on a theme from which famous opera?",
+    "options": [
+      "The Magic Flute",
+      "Don Giovanni",
+      "The Marriage of Figaro",
+      "Così fan tutte"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "id": "composers_works_8",
+    "category": "composers_works",
+    "categoryName": "Composers & Masterpieces",
+    "question": "Which Italian virtuoso composer of the Classical era is known for numerous guitar works including his 'Grand Overture, Op. 61'?",
+    "options": [
+      "Matteo Carcassi",
+      "Ferdinando Carulli",
+      "Mauro Giuliani",
+      "Niccolò Paganini"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "id": "composers_works_9",
+    "category": "composers_works",
+    "categoryName": "Composers & Masterpieces",
+    "question": "Which composer's 'Suite Española, Op. 47' features movements named after various Spanish regions and cities, such as 'Granada' and 'Sevilla'?",
+    "options": [
+      "Francisco Tárrega",
+      "Joaquín Turina",
+      "Enrique Granados",
+      "Isaac Albéniz"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "id": "composers_works_10",
+    "category": "composers_works",
+    "categoryName": "Composers & Masterpieces",
+    "question": "Agustín Barrios Mangoré, often known as 'The Paganini of the Jungle,' was a prominent classical guitar composer from which South American country?",
+    "options": [
+      "Brazil",
+      "Argentina",
+      "Paraguay",
+      "Uruguay"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "id": "technique_terminology_1",
+    "category": "technique_terminology",
+    "categoryName": "Technique & Terminology",
+    "question": "What is the term for plucking a string where the finger rests on the adjacent string after striking, resulting in a robust tone?",
+    "options": [
+      "Tirando",
+      "Apoyando",
+      "Picado",
+      "Rasgueado"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "id": "technique_terminology_2",
+    "category": "technique_terminology",
+    "categoryName": "Technique & Terminology",
+    "question": "When plucking a string with the right hand, which technique allows the finger to *not* rest on the adjacent string, producing a lighter, often quieter sound?",
+    "options": [
+      "Apoyando",
+      "Golpe",
+      "Tirando",
+      "Alzapúa"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "id": "technique_terminology_3",
+    "category": "technique_terminology",
+    "categoryName": "Technique & Terminology",
+    "question": "In classical guitar notation, which right-hand finger is typically designated by the letter 'i'?",
+    "options": [
+      "Thumb",
+      "Index finger",
+      "Middle finger",
+      "Ring finger"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "id": "technique_terminology_4",
+    "category": "technique_terminology",
+    "categoryName": "Technique & Terminology",
+    "question": "The technique of playing two or more notes in sequence with a single pluck by the right hand, using only the left hand to articulate the subsequent notes (e.g., hammer-ons and pull-offs), is known as:",
+    "options": [
+      "Vibrato",
+      "Tremolo",
+      "Barré",
+      "Slur"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "id": "technique_terminology_5",
+    "category": "technique_terminology",
+    "categoryName": "Technique & Terminology",
+    "question": "What is the classical guitar technique where one left-hand finger presses down across multiple strings simultaneously at a single fret?",
+    "options": [
+      "Harmonic",
+      "Barré",
+      "Campanella",
+      "Picado"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "id": "technique_terminology_6",
+    "category": "technique_terminology",
+    "categoryName": "Technique & Terminology",
+    "question": "Which guitar-specific term describes playing a melodic line across different strings to create a sustained, bell-like, resonating effect?",
+    "options": [
+      "Tambora",
+      "Campanella",
+      "Glissando",
+      "Pizzicato"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "id": "technique_terminology_7",
+    "category": "technique_terminology",
+    "categoryName": "Technique & Terminology",
+    "question": "Which right-hand technique involves rapidly repeating a single note (often on the same string) with multiple fingers, typically 'a-m-i' following a 'p' bass note?",
+    "options": [
+      "Rasgueado",
+      "Tremolo",
+      "Arpeggio",
+      "Alzapúa"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "id": "technique_terminology_8",
+    "category": "technique_terminology",
+    "categoryName": "Technique & Terminology",
+    "question": "The flamenco guitar technique involving a percussive strumming action where fingers extend and retract in a fanning motion, often used for rhythmic emphasis, is called:",
+    "options": [
+      "Picado",
+      "Tremolo",
+      "Rasgueado",
+      "Apoyando"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "id": "technique_terminology_9",
+    "category": "technique_terminology",
+    "categoryName": "Technique & Terminology",
+    "question": "To produce a natural harmonic on a classical guitar, where on the string should the left-hand finger lightly touch without pressing down?",
+    "options": [
+      "Halfway between two frets",
+      "Directly over a fret wire",
+      "Near the bridge",
+      "Near the nut"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "id": "technique_terminology_10",
+    "category": "technique_terminology",
+    "categoryName": "Technique & Terminology",
+    "question": "In flamenco and sometimes classical guitar, what is the term for tapping or knocking on the soundboard with the right-hand fingers or thumb, often to provide rhythmic punctuation?",
+    "options": [
+      "Vibrato",
+      "Tambora",
+      "Picado",
+      "Golpe"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "id": "history_luthiers_1",
+    "category": "history_luthiers",
+    "categoryName": "Guitar History & Luthiers",
+    "question": "A key distinguishing feature between a Baroque guitar and the modern classical guitar is the Baroque guitar's use of:",
+    "options": [
+      "Metal strings",
+      "Fretted neck",
+      "Single courses",
+      "Double courses (pairs)"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "id": "history_luthiers_2",
+    "category": "history_luthiers",
+    "categoryName": "Guitar History & Luthiers",
+    "question": "Antonio de Torres Jurado is widely recognized for standardizing the modern classical guitar's physical dimensions and, most notably, which internal construction feature?",
+    "options": [
+      "X-bracing",
+      "Ladder bracing",
+      "Fan bracing",
+      "Trestle bracing"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "id": "history_luthiers_3",
+    "category": "history_luthiers",
+    "categoryName": "Guitar History & Luthiers",
+    "question": "Which renowned classical guitarist famously played a Hermann Hauser I instrument from 1937, contributing to the luthier's legendary status?",
+    "options": [
+      "Julian Bream",
+      "John Williams",
+      "Andrés Segovia",
+      "Francisco Tárrega"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "id": "history_luthiers_4",
+    "category": "history_luthiers",
+    "categoryName": "Guitar History & Luthiers",
+    "question": "The José Ramírez workshop, particularly under José Ramírez III, is famous for pioneering the use of which specific wood for guitar tops, popularizing an alternative to spruce?",
+    "options": [
+      "Maple",
+      "Mahogany",
+      "Cedar",
+      "Rosewood"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "id": "history_luthiers_5",
+    "category": "history_luthiers",
+    "categoryName": "Guitar History & Luthiers",
+    "question": "The guitars of Spanish luthier Ignacio Fleta are often characterized by their:",
+    "options": [
+      "Extremely lightweight construction",
+      "Muted, mellow tone",
+      "Exceptional power and clarity",
+      "Focus on historical reproductions"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "id": "history_luthiers_6",
+    "category": "history_luthiers",
+    "categoryName": "Guitar History & Luthiers",
+    "question": "French luthier Robert Bouchet is highly regarded for building guitars known for their:",
+    "options": [
+      "Thick, heavily built bodies",
+      "Bright, metallic sound",
+      "Subtlety, balance, and refined tone",
+      "Exclusive use of laminate woods"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "id": "history_luthiers_7",
+    "category": "history_luthiers",
+    "categoryName": "Guitar History & Luthiers",
+    "question": "The shift from multiple courses (pairs of strings) to six single strings as the standard for the classical guitar largely solidified during which century?",
+    "options": [
+      "17th century",
+      "18th century",
+      "19th century",
+      "20th century"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "id": "history_luthiers_8",
+    "category": "history_luthiers",
+    "categoryName": "Guitar History & Luthiers",
+    "question": "Prior to the innovations of Antonio de Torres, classical guitars generally featured:",
+    "options": [
+      "Larger bodies with more projection",
+      "Thicker soundboards with heavy bracing",
+      "Smaller bodies and less volume",
+      "Steel strings as standard"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "id": "history_luthiers_9",
+    "category": "history_luthiers",
+    "categoryName": "Guitar History & Luthiers",
+    "question": "Which of the following luthiers is most directly associated with the Madrid school of guitar making, known for its deep connection to Spanish guitar traditions established after Torres?",
+    "options": [
+      "Hermann Hauser",
+      "Robert Bouchet",
+      "José Ramírez",
+      "Ignacio Fleta"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "id": "history_luthiers_10",
+    "category": "history_luthiers",
+    "categoryName": "Guitar History & Luthiers",
+    "question": "The vihuela, an ancestor of the classical guitar, was most prominent in which historical period?",
+    "options": [
+      "Early Renaissance",
+      "Late Medieval",
+      "Baroque",
+      "Classical"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "id": "anatomy_tuning_1",
+    "category": "anatomy_tuning",
+    "categoryName": "Anatomy & Tuning",
+    "question": "What is the primary function of the nut on a classical guitar?",
+    "options": [
+      "To connect the strings to the bridge",
+      "To provide a fixed point for the strings at the headstock end and determine string spacing",
+      "To amplify the sound",
+      "To allow for string bending"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "id": "anatomy_tuning_2",
+    "category": "anatomy_tuning",
+    "categoryName": "Anatomy & Tuning",
+    "question": "Which two tonewoods are most commonly used for the soundboard (top) of a classical guitar due to their resonant properties?",
+    "options": [
+      "Mahogany and Maple",
+      "Rosewood and Ebony",
+      "Spruce and Cedar",
+      "Walnut and Koa"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "id": "anatomy_tuning_3",
+    "category": "anatomy_tuning",
+    "categoryName": "Anatomy & Tuning",
+    "question": "What is the standard tuning for the classical guitar, from the 6th (lowest) string to the 1st (highest) string?",
+    "options": [
+      "C-G-D-A-E-G",
+      "E-A-D-G-B-E",
+      "D-G-C-F-A-D",
+      "B-E-A-D-F#-B"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "id": "anatomy_tuning_4",
+    "category": "anatomy_tuning",
+    "categoryName": "Anatomy & Tuning",
+    "question": "The decorative inlay around the soundhole of a classical guitar is known as the:",
+    "options": [
+      "Fretboard marker",
+      "Purfling",
+      "Rosette",
+      "Binding"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "id": "anatomy_tuning_5",
+    "category": "anatomy_tuning",
+    "categoryName": "Anatomy & Tuning",
+    "question": "What material are the treble strings (G, B, E) of a modern classical guitar typically made from?",
+    "options": [
+      "Steel",
+      "Bronze",
+      "Nylon or Fluorocarbon",
+      "Silk"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "id": "anatomy_tuning_6",
+    "category": "anatomy_tuning",
+    "categoryName": "Anatomy & Tuning",
+    "question": "What is the interval relationship between the 3rd (G) and 2nd (B) strings in standard classical guitar tuning?",
+    "options": [
+      "Perfect Fourth",
+      "Major Third",
+      "Minor Third",
+      "Perfect Fifth"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "id": "anatomy_tuning_7",
+    "category": "anatomy_tuning",
+    "categoryName": "Anatomy & Tuning",
+    "question": "How does the distance between frets change as you move from the nut towards the bridge on a classical guitar?",
+    "options": [
+      "It increases",
+      "It remains constant",
+      "It decreases",
+      "It varies randomly"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "id": "anatomy_tuning_8",
+    "category": "anatomy_tuning",
+    "categoryName": "Anatomy & Tuning",
+    "question": "What component is typically inserted into the slot on the bridge of a classical guitar to transmit string vibrations to the soundboard?",
+    "options": [
+      "The nut",
+      "The fret",
+      "The saddle",
+      "The tuning peg"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "id": "anatomy_tuning_9",
+    "category": "anatomy_tuning",
+    "categoryName": "Anatomy & Tuning",
+    "question": "Which of these tonewoods is most commonly used for the back and sides of high-quality classical guitars, known for its rich overtones and sustain?",
+    "options": [
+      "Maple",
+      "Mahogany",
+      "Rosewood",
+      "Spruce"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "id": "anatomy_tuning_10",
+    "category": "anatomy_tuning",
+    "categoryName": "Anatomy & Tuning",
+    "question": "In 'Drop D' tuning, which string is lowered by a whole step from its standard tuning, and to what note?",
+    "options": [
+      "The 1st (E) string to D",
+      "The 6th (E) string to D",
+      "The 3rd (G) string to F",
+      "The 5th (A) string to G"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "id": "famous_interpreters_1",
+    "category": "famous_interpreters",
+    "categoryName": "Famous Interpreters",
+    "question": "Which legendary guitarist is widely credited with elevating the classical guitar to the concert stage as a serious instrument and commissioning numerous works from major composers?",
+    "options": [
+      "Andrés Segovia",
+      "Julian Bream",
+      "John Williams",
+      "Francisco Tárrega"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "id": "famous_interpreters_2",
+    "category": "famous_interpreters",
+    "categoryName": "Famous Interpreters",
+    "question": "Julian Bream was renowned for his diverse repertoire, often performing works for both lute and guitar. Which composer famously dedicated his 'Nocturnal after John Dowland, Op. 70' to Bream?",
+    "options": [
+      "Joaquín Rodrigo",
+      "Leo Brouwer",
+      "Benjamin Britten",
+      "Manuel Ponce"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "id": "famous_interpreters_3",
+    "category": "famous_interpreters",
+    "categoryName": "Famous Interpreters",
+    "question": "Beyond his classical career, John Williams gained widespread recognition for his work in which famous group, blending classical guitar with jazz and rock influences?",
+    "options": [
+      "Oregon",
+      "The String Trio of New York",
+      "Sky",
+      "The Kronos Quartet"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "id": "famous_interpreters_4",
+    "category": "famous_interpreters",
+    "categoryName": "Famous Interpreters",
+    "question": "Known as the 'father of modern classical guitar,' Francisco Tárrega significantly influenced guitar technique and repertoire. Which famous salon piece, often used for mobile phone ringtones, did he compose?",
+    "options": [
+      "Recuerdos de la Alhambra",
+      "Capricho Árabe",
+      "Lagrima",
+      "Adelita"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "id": "famous_interpreters_5",
+    "category": "famous_interpreters",
+    "categoryName": "Famous Interpreters",
+    "question": "Which Spanish guitarist was famous for his pioneering use of a 10-string classical guitar, believing the extra strings provided greater resonance and allowed for more accurate reproduction of Renaissance and Baroque lute music?",
+    "options": [
+      "Manuel Barrueco",
+      "Narciso Yepes",
+      "Pepe Romero",
+      "David Russell"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "id": "famous_interpreters_6",
+    "category": "famous_interpreters",
+    "categoryName": "Famous Interpreters",
+    "question": "Which Grammy Award-winning guitarist, renowned for his refined interpretations and extensive discography, has also held significant teaching positions at prestigious institutions?",
+    "options": [
+      "Julian Bream",
+      "John Williams",
+      "David Russell",
+      "Ana Vidovic"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "id": "famous_interpreters_7",
+    "category": "famous_interpreters",
+    "categoryName": "Famous Interpreters",
+    "question": "Manuel Barrueco is a Cuban-born guitarist celebrated for his virtuosity and elegant musicality. At which prestigious American conservatory has he taught for many years, influencing a generation of guitarists?",
+    "options": [
+      "The Juilliard School",
+      "Curtis Institute of Music",
+      "Peabody Conservatory",
+      "New England Conservatory"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "id": "famous_interpreters_8",
+    "category": "famous_interpreters",
+    "categoryName": "Famous Interpreters",
+    "question": "Which Croatian classical guitarist gained international fame at a young age, performing professionally by the age of 13 and later becoming one of the most visible female classical guitarists today?",
+    "options": [
+      "Sharon Isbin",
+      "Irina Kulikova",
+      "Xuefei Yang",
+      "Ana Vidovic"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "id": "famous_interpreters_9",
+    "category": "famous_interpreters",
+    "categoryName": "Famous Interpreters",
+    "question": "A student of Francisco Tárrega, Miguel Llobet was a significant composer and performer known for his arrangements of Catalan folk songs and Spanish dances. He also famously toured with which other Tárrega student?",
+    "options": [
+      "Emilio Pujol",
+      "Daniel Fortea",
+      "Esteban Sanlúcar",
+      "Agustín Barrios Mangoré"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "id": "famous_interpreters_10",
+    "category": "famous_interpreters",
+    "categoryName": "Famous Interpreters",
+    "question": "The Barcelona School of Guitar, known for its emphasis on a natural approach to technique and profound musicality, traces its roots directly back to the teachings of which influential historical figure?",
+    "options": [
+      "Fernando Sor",
+      "Mauro Giuliani",
+      "Dionisio Aguado",
+      "Francisco Tárrega"
+    ],
+    "correctIndex": 3
+  }
+]

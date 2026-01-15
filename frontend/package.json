@@ -8,10 +8,12 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "generate:questions": "node --env-file=.env scripts/generate_bank.mjs"
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.32.1",
+    "@google/generative-ai": "^0.24.1",
     "@solana/wallet-adapter-base": "^0.9.27",
     "@solana/wallet-adapter-react": "^0.15.39",
     "@solana/wallet-adapter-react-ui": "^0.9.39",

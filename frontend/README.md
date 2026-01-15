@@ -1,4 +1,67 @@
-# React + TypeScript + Vite
+# Classical Git'TAR Society - Frontend
+
+React + TypeScript + Vite frontend for the Classical Git'TAR Society Solana dApp.
+
+## Setup
+
+```bash
+npm install
+cp .env.example .env
+# Edit .env with your API keys
+```
+
+## Development
+
+```bash
+npm run dev
+```
+
+## Quiz Bowl Question Generation
+
+The Quiz Bowl component uses AI-generated questions stored in `src/data/question_bank.json`.
+
+### Generate New Questions
+
+```bash
+# Requires VITE_GEMINI_API_KEY in .env
+npm run generate:questions
+```
+
+This will:
+- Call Gemini API for 5 classical guitar categories
+- Validate and sanitize responses
+- **Accumulate** new questions (existing questions are preserved)
+- Deduplicate by question text
+
+### Check Available Gemini Models
+
+```bash
+node --env-file=.env scripts/list_models.mjs
+```
+
+## Project Structure
+
+```
+src/
+├── components/      # React components (QuizBowl, Contest, etc.)
+├── data/           # Static data (question_bank.json)
+├── idl/            # Anchor IDL for Solana program
+├── types/          # TypeScript type definitions
+└── assets/         # Static assets
+scripts/
+├── generate_bank.mjs   # Question generator script
+└── list_models.mjs     # Gemini model lister
+```
+
+## Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `VITE_GEMINI_API_KEY` | Google Gemini API key for question generation |
+
+---
+
+## Original Vite Template Info
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 

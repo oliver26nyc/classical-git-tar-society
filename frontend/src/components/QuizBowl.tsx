@@ -11,45 +11,39 @@ import type { GuitarContest } from "../types/guitar_contest.ts";
 import { Leaderboard, shortenAddress } from "./Leaderboard";
 import type { LeaderboardEntry } from "./Leaderboard";
 
+// Import question bank and types
+import questionBank from "../data/question_bank.json";
+import type { Question } from "../types/quiz";
+
 // --- Program ID (same as Contest) ---
 const PROGRAM_ID = new PublicKey("2Hg6qeZGBsMPDDM1RY65Ucwk5JbLrF3D3P9qdYbEfmSU");
 
 // TAR token mint address
 const TAR_MINT = new PublicKey("FD2ZQ6SJxQTFo4FfvXEy6Jiw9MA3KkXXdo39THCEe6iH");
 
-// Sample questions (in production, these could be fetched from a backend)
-const QUESTIONS = [
-  {
-    id: 1,
-    question: "Who is considered the father of the modern classical guitar?",
-    options: ["Andrés Segovia", "Francisco Tárrega", "Fernando Sor", "Mauro Giuliani"],
-    correctIndex: 1, // Francisco Tárrega
-  },
-  {
-    id: 2,
-    question: "What is the standard tuning of a classical guitar from lowest to highest string?",
-    options: ["D-A-D-G-B-E", "E-A-D-G-B-E", "E-B-G-D-A-E", "D-G-B-E-A-D"],
-    correctIndex: 1, // E-A-D-G-B-E
-  },
-  {
-    id: 3,
-    question: "Which piece is NOT composed by J.S. Bach?",
-    options: ["Chaconne in D minor", "Lute Suite No. 4", "Recuerdos de la Alhambra", "Prelude in C major"],
-    correctIndex: 2, // Recuerdos de la Alhambra (by Tárrega)
-  },
-  {
-    id: 4,
-    question: "What technique involves rapidly alternating the same note with different fingers?",
-    options: ["Rasgueado", "Tremolo", "Picado", "Alzapúa"],
-    correctIndex: 1, // Tremolo
-  },
-  {
-    id: 5,
-    question: "Who composed 'Asturias (Leyenda)'?",
-    options: ["Francisco Tárrega", "Isaac Albéniz", "Joaquín Rodrigo", "Manuel de Falla"],
-    correctIndex: 1, // Isaac Albéniz
-  },
-];
+// Number of questions per quiz session
+const QUIZ_SIZE = 5;
+
+/**
+ * Fisher-Yates shuffle algorithm
+ * Returns a new shuffled array without modifying the original
+ */
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
+/**
+ * Get a random subset of questions from the question bank
+ */
+function getRandomQuiz(count: number): Question[] {
+  const shuffled = shuffleArray(questionBank as Question[]);
+  return shuffled.slice(0, count);
+}
 
 // Quiz state type - matches on-chain QuizState
 type QuizState = {
@@ -61,7 +55,7 @@ type QuizState = {
 
 // Local answer tracking
 type LocalAnswers = {
-  [questionId: number]: number; // questionId -> selectedIndex
+  [questionId: string]: number; // questionId -> selectedIndex
 };
 
 // This function creates a new, valid program object
@@ -77,6 +71,9 @@ export const QuizBowl = () => {
   const { connection } = useConnection();
   const wallet = useWallet();
   
+  // Quiz questions state - randomized on mount
+  const [questions, setQuestions] = useState<Question[]>([]);
+  
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [quizState, setQuizState] = useState<QuizState | null>(null);
@@ -86,10 +83,15 @@ export const QuizBowl = () => {
   const [quizAlreadyTaken, setQuizAlreadyTaken] = useState(false);
   const [leaderboardEntries, setLeaderboardEntries] = useState<LeaderboardEntry[]>([]);
 
-  const currentQuestion = QUESTIONS[currentQuestionIndex];
-  const totalQuestions = QUESTIONS.length;
+  // Initialize quiz with random questions on mount
+  useEffect(() => {
+    setQuestions(getRandomQuiz(QUIZ_SIZE));
+  }, []);
+
+  const currentQuestion = questions[currentQuestionIndex];
+  const totalQuestions = questions.length;
   const answeredCount = Object.keys(localAnswers).length;
-  const allQuestionsAnswered = answeredCount === totalQuestions;
+  const allQuestionsAnswered = totalQuestions > 0 && answeredCount === totalQuestions;
 
   // Fetch quiz state on wallet connect - check if already completed
   useEffect(() => {
@@ -228,12 +230,12 @@ export const QuizBowl = () => {
   // Calculate score from local answers
   const calculateScore = (): { correct: number; total: number } => {
     let correct = 0;
-    QUESTIONS.forEach(q => {
+    questions.forEach(q => {
       if (localAnswers[q.id] === q.correctIndex) {
         correct++;
       }
     });
-    return { correct, total: QUESTIONS.length };
+    return { correct, total: questions.length };
   };
 
   // Complete quiz and submit to blockchain
