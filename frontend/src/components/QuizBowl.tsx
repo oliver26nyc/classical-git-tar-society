@@ -47,10 +47,17 @@ function getRandomQuiz(count: number): Question[] {
 
 // Quiz state type - matches on-chain QuizState
 type QuizState = {
+  quizVersion: number;
   totalQuestions: number;
   correctAnswers: number;
   quizCompleted: boolean;
   tokensAwarded: boolean;
+};
+
+// Quiz config type - matches on-chain QuizConfig
+type QuizConfig = {
+  admin: PublicKey;
+  quizVersion: number;
 };
 
 // Local answer tracking
@@ -77,6 +84,7 @@ export const QuizBowl = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [quizState, setQuizState] = useState<QuizState | null>(null);
+  const [quizConfig, setQuizConfig] = useState<QuizConfig | null>(null);
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [localAnswers, setLocalAnswers] = useState<LocalAnswers>({});
@@ -93,7 +101,7 @@ export const QuizBowl = () => {
   const answeredCount = Object.keys(localAnswers).length;
   const allQuestionsAnswered = totalQuestions > 0 && answeredCount === totalQuestions;
 
-  // Fetch quiz state on wallet connect - check if already completed
+  // Fetch quiz state on wallet connect - check if already completed for current version
   useEffect(() => {
     const fetchQuizState = async () => {
       if (wallet.publicKey && wallet.signTransaction) {
@@ -101,44 +109,51 @@ export const QuizBowl = () => {
         try {
           const program = getProgram(connection, wallet);
           
-          // Derive the quiz state PDA
-          const [quizStatePda] = PublicKey.findProgramAddressSync(
-            [Buffer.from("quiz_state"), wallet.publicKey.toBuffer()],
+          // First, fetch the quiz config to get current version
+          const [quizConfigPda] = PublicKey.findProgramAddressSync(
+            [Buffer.from("quiz_config")],
             PROGRAM_ID
           );
 
-          // Also check for completion receipt
-          const [completionReceiptPda] = PublicKey.findProgramAddressSync(
-            [Buffer.from("quiz_completion"), wallet.publicKey.toBuffer()],
+          let currentVersion = 1; // Default if not initialized
+          try {
+            if (program.account && (program.account as any).quizConfig) {
+              const config = await (program.account as any).quizConfig.fetch(quizConfigPda);
+              currentVersion = (config.quizVersion as anchor.BN).toNumber();
+              setQuizConfig({
+                admin: config.admin,
+                quizVersion: currentVersion,
+              });
+            }
+          } catch {
+            // Config not initialized yet - use default version 1
+            setQuizConfig(null);
+          }
+
+          // Derive the quiz state PDA with version
+          const versionBuffer = Buffer.alloc(8);
+          versionBuffer.writeBigUInt64LE(BigInt(currentVersion));
+          
+          const [quizStatePda] = PublicKey.findProgramAddressSync(
+            [Buffer.from("quiz_state"), wallet.publicKey.toBuffer(), versionBuffer],
             PROGRAM_ID
           );
 
           try {
-            // Check if completion receipt exists (quiz already taken)
-            const receiptInfo = await connection.getAccountInfo(completionReceiptPda);
-            if (receiptInfo) {
+            // Check if quiz state exists for current version
+            if (program.account && (program.account as any).quizState) {
+              const state = await (program.account as any).quizState.fetch(quizStatePda);
+              setQuizState({
+                quizVersion: (state.quizVersion as anchor.BN).toNumber(),
+                totalQuestions: (state.totalQuestions as anchor.BN).toNumber(),
+                correctAnswers: (state.correctAnswers as anchor.BN).toNumber(),
+                quizCompleted: state.quizCompleted,
+                tokensAwarded: state.tokensAwarded,
+              });
               setQuizAlreadyTaken(true);
-              // Try to fetch the quiz state for display
-              try {
-                if (program.account && (program.account as any).quizState) {
-                  const state = await (program.account as any).quizState.fetch(quizStatePda);
-                  setQuizState({
-                    totalQuestions: (state.totalQuestions as anchor.BN).toNumber(),
-                    correctAnswers: (state.correctAnswers as anchor.BN).toNumber(),
-                    quizCompleted: state.quizCompleted,
-                    tokensAwarded: state.tokensAwarded,
-                  });
-                }
-              } catch {
-                // State fetch failed but receipt exists
-              }
-            } else {
-              // No receipt - quiz not taken yet
-              setQuizAlreadyTaken(false);
-              setQuizState(null);
             }
           } catch {
-            // Quiz not taken yet
+            // Quiz not taken for current version
             setQuizAlreadyTaken(false);
             setQuizState(null);
           }
@@ -248,6 +263,9 @@ export const QuizBowl = () => {
     const { correct, total } = calculateScore();
     const percentage = Math.round((correct / total) * 100);
     const passed = percentage >= 80;
+    
+    // Get current quiz version (default 1 if not initialized)
+    const currentVersion = quizConfig?.quizVersion ?? 1;
 
     try {
       const program = getProgram(connection, wallet);
@@ -256,6 +274,7 @@ export const QuizBowl = () => {
       if (!(program.methods as any).completeQuiz) {
         // Program not deployed yet - simulate locally
         setQuizState({
+          quizVersion: currentVersion,
           totalQuestions: total,
           correctAnswers: correct,
           quizCompleted: true,
@@ -272,9 +291,16 @@ export const QuizBowl = () => {
         return;
       }
 
+      // Derive the quiz config PDA
+      const [quizConfigPda] = PublicKey.findProgramAddressSync(
+        [Buffer.from("quiz_config")],
+        PROGRAM_ID
+      );
+
       const tx = await (program.methods as any)
         .completeQuiz(new anchor.BN(total), new anchor.BN(correct))
         .accounts({
+          quizConfig: quizConfigPda,
           tarMint: TAR_MINT,
           user: wallet.publicKey,
         })
@@ -283,6 +309,7 @@ export const QuizBowl = () => {
       console.log("Quiz completed! Tx:", tx);
 
       setQuizState({
+        quizVersion: currentVersion,
         totalQuestions: total,
         correctAnswers: correct,
         quizCompleted: true,
@@ -301,8 +328,10 @@ export const QuizBowl = () => {
       const errString = err instanceof Error ? err.message : String(err);
       
       if (errString.includes("already in use") || errString.includes("0x0")) {
-        setFeedback("⚠️ You have already completed this quiz!");
+        setFeedback("⚠️ You have already completed this quiz version!");
         setQuizAlreadyTaken(true);
+      } else if (errString.includes("AccountNotInitialized") || errString.includes("quiz_config")) {
+        setFeedback("⚠️ Quiz config not initialized. Please contact admin.");
       } else {
         setFeedback(`Error: ${errString}`);
       }
@@ -313,9 +342,9 @@ export const QuizBowl = () => {
 
   // Navigate to next question
   const handleNextQuestion = () => {
-    if (currentQuestionIndex < QUESTIONS.length - 1) {
+    if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
-      setSelectedAnswer(localAnswers[QUESTIONS[currentQuestionIndex + 1]?.id] ?? null);
+      setSelectedAnswer(localAnswers[questions[currentQuestionIndex + 1]?.id] ?? null);
       setFeedback(null);
     }
   };
@@ -324,7 +353,7 @@ export const QuizBowl = () => {
   const handlePrevQuestion = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(prev => prev - 1);
-      setSelectedAnswer(localAnswers[QUESTIONS[currentQuestionIndex - 1]?.id] ?? null);
+      setSelectedAnswer(localAnswers[questions[currentQuestionIndex - 1]?.id] ?? null);
       setFeedback(null);
     }
   };
@@ -346,8 +375,8 @@ export const QuizBowl = () => {
         {/* Left column - Quiz result */}
         <div className="submission-container">
           <div className="quiz-stats" style={{ maxWidth: "600px" }}>
-            <h3>📊 Quiz Completed</h3>
-            <p>You have already taken this quiz.</p>
+            <h3>📊 Quiz Completed (Version {quizState.quizVersion})</h3>
+            <p>You have already taken this quiz version.</p>
             <p>Score: <strong>{quizState.correctAnswers}/{quizState.totalQuestions}</strong> ({percentage}%)</p>
             <p>TAR Earned: <strong>{quizState.tokensAwarded ? 1 : 0}</strong></p>
             {quizState.tokensAwarded ? (
@@ -355,6 +384,9 @@ export const QuizBowl = () => {
             ) : (
               <p style={{ color: "#d9534f" }}>You needed 80% to earn TAR.</p>
             )}
+            <p style={{ marginTop: "1rem", fontSize: "0.9em", color: "#888" }}>
+              When a new question bank is released, you'll be able to retake the quiz!
+            </p>
           </div>
         </div>
 
@@ -362,7 +394,7 @@ export const QuizBowl = () => {
         <div className="form-container">
           <div className="token-rewards-box">
             <h3>🪙 Quiz Bowl Rules</h3>
-            <p className="token-rule">One attempt per account • 80%+ correct = 1 TAR</p>
+            <p className="token-rule">One attempt per version • 80%+ correct = 1 TAR</p>
           </div>
           
           <Leaderboard
@@ -374,6 +406,15 @@ export const QuizBowl = () => {
             currentUserAddress={wallet.publicKey?.toBase58()}
           />
         </div>
+      </div>
+    );
+  }
+
+  // Show loading while questions are being initialized
+  if (!currentQuestion) {
+    return (
+      <div style={{ textAlign: "center", padding: "40px" }}>
+        <h3>Loading quiz questions...</h3>
       </div>
     );
   }

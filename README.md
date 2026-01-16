@@ -78,8 +78,11 @@ The Classical Git'TAR Society is a Web3 platform where classical guitarists can 
 
 ### 6. Quiz Bowl (Active)
 - Classical guitar trivia and knowledge tests
-- Reward: TAR tokens for correct answers
-- Features timed quizzes and leaderboards
+- AI-generated questions using Google Gemini API
+- 5 categories: Composers & Works, Technique & Terminology, Guitar History & Luthiers, Anatomy & Tuning, Famous Interpreters
+- Reward: 1 TAR token for scoring 80%+ on the quiz
+- Features randomized questions and persistent leaderboards
+- Version-based reset system allows users to retake when question bank is updated
 
 ## 🚀 Development Journey
 
@@ -205,6 +208,25 @@ The Classical Git'TAR Society is a Web3 platform where classical guitarists can 
    - Both fixes necessary for performers who never interacted with app before
    - Successfully backfilled 3 TAR for 1 existing vote
 
+### Phase 7: Quiz Bowl with AI-Generated Questions
+1. **Question Bank Generator**
+   - Created `generate_bank.mjs` script using Google Gemini API
+   - 5 classical guitar categories with 5 questions each per run
+   - Accumulation feature: preserves existing questions, deduplicates new ones
+   - Rate limiting: 35-second delay between API calls
+
+2. **Quiz Reset System**
+   - Added `QuizConfig` account for global version tracking
+   - Quiz state PDA now seeded by `[user, version]`
+   - `initialize_quiz_config` - One-time admin setup
+   - `reset_quiz_version` - Bumps version when question bank is updated
+   - Users can retake quiz after each version reset
+
+3. **Admin Scripts**
+   - `quiz-admin.ts` script for quiz config management
+   - Commands: `init`, `reset`, `status`
+   - Admin-only access via wallet keypair
+
 ## 📁 Project Structure
 
 ```
@@ -219,10 +241,16 @@ classical-git-tar-society/
 │   │   │   ├── QuizBowl.tsx      # Quiz Bowl feature
 │   │   │   ├── UnderConstruction.tsx  # Placeholder pages
 │   │   │   └── WalletBalance.tsx # TAR token balance display
+│   │   ├── data/
+│   │   │   └── question_bank.json # AI-generated quiz questions
 │   │   ├── idl/
 │   │   │   └── guitar_contest.json   # Generated IDL
 │   │   └── types/
-│   │       └── guitar_contest.ts # Generated TypeScript types
+│   │       ├── guitar_contest.ts # Generated TypeScript types
+│   │       └── quiz.ts           # Quiz question types
+│   ├── scripts/
+│   │   ├── generate_bank.mjs     # Gemini API question generator
+│   │   └── list_models.mjs       # Utility to list Gemini models
 │   └── package.json
 │
 ├── backend/                       # Anchor/Solana program
@@ -231,7 +259,8 @@ classical-git-tar-society/
 │   │       └── lib.rs           # Smart contract code
 │   ├── scripts/
 │   │   ├── transfer-mint-authority.ts  # Mint authority setup
-│   │   └── backfill-tokens.ts   # Retroactive token minting
+│   │   ├── backfill-tokens.ts   # Retroactive token minting
+│   │   └── quiz-admin.ts        # Quiz config management
 │   ├── target/
 │   │   ├── idl/                 # Generated IDL
 │   │   └── types/               # Generated types
@@ -294,6 +323,31 @@ pub fn backfill_tokens(ctx: Context<BackfillTokens>)
 - Updates performer_profile.tar_balance
 - Formula: `tar_amount = votes * 3 * 10^decimals`
 
+#### 6. complete_quiz
+```rust
+pub fn complete_quiz(ctx: Context<CompleteQuiz>, total_questions: u64, correct_answers: u64)
+```
+- Records quiz completion for user
+- PDA seeded by `[user, quiz_version]` (allows retakes on new versions)
+- Awards 1 TAR token if 80%+ correct
+- Creates/updates UserProfile and token accounts
+
+#### 7. initialize_quiz_config
+```rust
+pub fn initialize_quiz_config(ctx: Context<InitializeQuizConfig>)
+```
+- One-time admin setup
+- Creates global QuizConfig account
+- Sets admin pubkey and initial version (1)
+
+#### 8. reset_quiz_version
+```rust
+pub fn reset_quiz_version(ctx: Context<ResetQuizVersion>)
+```
+- Admin-only instruction
+- Increments quiz version number
+- Allows all users to retake quiz with new version
+
 ### Account Structures
 
 #### SubmissionAccount
@@ -319,12 +373,34 @@ pub struct UserProfile {
 pub struct VoteReceipt {}  // Empty marker account
 ```
 
+#### QuizConfig
+```rust
+pub struct QuizConfig {
+    pub admin: Pubkey,         // 32 bytes - Admin who can reset
+    pub quiz_version: u64,     // 8 bytes - Current version number
+}
+```
+
+#### QuizState
+```rust
+pub struct QuizState {
+    pub user: Pubkey,          // 32 bytes
+    pub quiz_version: u64,     // 8 bytes - Version when taken
+    pub total_questions: u64,  // 8 bytes
+    pub correct_answers: u64,  // 8 bytes
+    pub quiz_completed: bool,  // 1 byte
+    pub tokens_awarded: bool,  // 1 byte
+}
+```
+
 ### PDA Derivation Patterns
 
 1. **VoteReceipt**: `[user_pubkey, submission_pubkey]` → Prevents double voting
 2. **UserProfile**: `[b"profile", user_pubkey]` → User activity tracking
 3. **Mint Authority**: `[b"mint_authority"]` → Program can mint tokens
 4. **Associated Token Account**: `[owner_pubkey, token_program_id, mint_pubkey]` → Standard ATA derivation
+5. **QuizConfig**: `[b"quiz_config"]` → Global quiz settings
+6. **QuizState**: `[b"quiz_state", user_pubkey, quiz_version_bytes]` → Per-user, per-version quiz state
 
 ### Frontend Integration
 
@@ -402,6 +478,62 @@ cd frontend
 npm run dev
 ```
 
+### Quiz Bowl Administration
+
+The Quiz Bowl uses a version-based system that allows users to retake the quiz when new questions are released.
+
+#### Initial Setup (One-Time)
+
+```bash
+# Initialize the quiz config on-chain
+cd backend
+yarn run quiz-admin init
+```
+
+#### Generating New Questions
+
+```bash
+# Set up Gemini API key (create frontend/.env)
+echo "VITE_GEMINI_API_KEY=your_api_key_here" > frontend/.env
+
+# Generate new questions (accumulates with existing)
+cd frontend
+npm run generate-quiz
+```
+
+#### Releasing New Question Bank
+
+When you want to release a new version of questions and allow all users to retake:
+
+```bash
+# 1. Generate new questions
+cd frontend
+npm run generate-quiz
+
+# 2. Reset quiz version (allows everyone to retake)
+cd ../backend
+yarn run quiz-admin reset
+
+# 3. Sync IDL if program was updated
+cp backend/target/idl/guitar_contest.json frontend/src/idl/
+cp backend/target/types/guitar_contest.ts frontend/src/types/
+```
+
+#### Quiz Admin Commands
+
+```bash
+# Check current quiz status
+yarn run quiz-admin status
+
+# Initialize quiz config (one-time)
+yarn run quiz-admin init
+
+# Reset quiz version (allows retakes)
+yarn run quiz-admin reset
+```
+
+**Note**: The leaderboard shows all quiz completions across all versions, preserving historical records.
+
 ## 🌐 Network Information
 
 - **Network**: Solana Devnet
@@ -425,6 +557,9 @@ npm run dev
 - [x] UserProfile tracking
 - [x] Associated Token Account creation
 - [x] Program deployment to devnet
+- [x] Quiz Bowl with AI-generated questions
+- [x] Quiz version reset system
+- [x] Quiz admin scripts
 
 ### In Progress 🚧
 - [ ] Frontend vote integration with new accounts (performer, tar_mint, etc.)
@@ -436,7 +571,7 @@ npm run dev
 - [ ] Lesson Hub: Instructor profiles and booking calendar
 - [ ] Discussion Forum: Threading, replies, and moderation
 - [ ] Profile pages for performers
-- [ ] Leaderboard: Rankings and stats display
+- [ ] Leaderboard: Rankings and stats display (partially done for Quiz Bowl)
 - [ ] NFT badges for achievements
 - [ ] Mainnet deployment
 

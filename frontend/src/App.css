@@ -297,7 +297,6 @@ body {
 
 .quiz-stats {
   background-color: #2a2f38;
-  border: 2px solid #61dafb;
   border-radius: 8px;
   padding: 20px;
   width: 100%;
@@ -482,9 +481,10 @@ body {
   background-color: #2a2f38;
   border: 2px solid #61dafb;
   border-radius: 8px;
-  padding: 20px;
+  padding: 15px;
   margin-top: 20px;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .leaderboard-title {
@@ -509,20 +509,21 @@ body {
 
 .leaderboard-header {
   display: flex;
-  padding: 10px 8px;
+  padding: 8px 6px;
   background-color: #1e2228;
   border-radius: 4px;
   font-weight: bold;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   color: #888;
 }
 
 .leaderboard-row {
   display: flex;
-  padding: 10px 8px;
+  padding: 8px 6px;
   background-color: #353a45;
   border-radius: 4px;
   transition: background-color 0.2s ease;
+  font-size: 0.85rem;
 }
 
 .leaderboard-row:hover {
@@ -552,7 +553,7 @@ body {
 }
 
 .leaderboard-col.rank {
-  flex: 0 0 40px;
+  flex: 0 0 30px;
   justify-content: center;
   font-weight: bold;
 }
@@ -560,30 +561,34 @@ body {
 .leaderboard-col.address {
   flex: 1;
   min-width: 0;
-  gap: 5px;
+  gap: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .leaderboard-col.label {
-  flex: 1.5;
+  flex: 0 0 45px;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   color: #ccc;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  justify-content: center;
 }
 
 .leaderboard-col.score {
-  flex: 0 0 60px;
+  flex: 0 0 45px;
   justify-content: center;
   font-weight: bold;
   color: #61dafb;
+  font-size: 0.85rem;
 }
 
 .leaderboard-col.status {
-  flex: 0 0 80px;
+  flex: 0 0 65px;
   justify-content: center;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   font-weight: bold;
 }
 

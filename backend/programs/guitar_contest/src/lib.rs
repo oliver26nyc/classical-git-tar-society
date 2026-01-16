@@ -182,7 +182,7 @@ pub mod guitar_contest {
 
     /// Instruction 5: Complete the quiz and claim reward
     /// Awards 1 TAR token if user got 80%+ correct (4/5 questions)
-    /// Each account can only take the quiz once
+    /// Each account can only take the quiz once per version
     pub fn complete_quiz(
         ctx: Context<CompleteQuiz>,
         total_questions: u64,
@@ -190,9 +190,11 @@ pub mod guitar_contest {
     ) -> Result<()> {
         let quiz_state = &mut ctx.accounts.quiz_state;
         let user_profile = &mut ctx.accounts.user_profile;
+        let quiz_config = &ctx.accounts.quiz_config;
 
-        // Initialize quiz state
+        // Store quiz version from config
         quiz_state.user = ctx.accounts.user.key();
+        quiz_state.quiz_version = quiz_config.quiz_version;
         quiz_state.total_questions = total_questions;
         quiz_state.correct_answers = correct_answers;
         quiz_state.quiz_completed = true;
@@ -206,7 +208,7 @@ pub mod guitar_contest {
         let percentage = (correct_answers * 100) / total_questions;
         let passed = percentage >= 80;
 
-        msg!("Quiz completed: {}/{} correct ({}%)", correct_answers, total_questions, percentage);
+        msg!("Quiz v{} completed: {}/{} correct ({}%)", quiz_config.quiz_version, correct_answers, total_questions, percentage);
 
         if passed {
             // Award 1 TAR token for passing
@@ -243,6 +245,29 @@ pub mod guitar_contest {
             msg!("You scored {}%. Need 80% to earn TAR. Better luck next time!", percentage);
         }
 
+        Ok(())
+    }
+
+    /// Instruction 6: Initialize the global quiz configuration (admin only, one-time)
+    pub fn initialize_quiz_config(ctx: Context<InitializeQuizConfig>) -> Result<()> {
+        let quiz_config = &mut ctx.accounts.quiz_config;
+        quiz_config.admin = ctx.accounts.admin.key();
+        quiz_config.quiz_version = 1;
+        
+        msg!("Quiz config initialized. Admin: {}, Version: 1", quiz_config.admin);
+        Ok(())
+    }
+
+    /// Instruction 7: Reset quiz version (admin only)
+    /// This allows all users to retake the quiz with new questions
+    pub fn reset_quiz_version(ctx: Context<ResetQuizVersion>) -> Result<()> {
+        let quiz_config = &mut ctx.accounts.quiz_config;
+        
+        quiz_config.quiz_version = quiz_config.quiz_version
+            .checked_add(1)
+            .ok_or(ErrorCode::Overflow)?;
+        
+        msg!("Quiz version reset to {}. All users can now retake the quiz!", quiz_config.quiz_version);
         Ok(())
     }
 }
@@ -426,6 +451,8 @@ pub enum ErrorCode {
     NotContestant,
     #[msg("Arithmetic overflow occurred.")]
     Overflow,
+    #[msg("Only the admin can perform this action.")]
+    Unauthorized,
 }
 
 // -----------------------------------------------------------------
@@ -516,45 +543,46 @@ pub struct VoteReceipt {}
 // 7. QUIZ BOWL DATA STRUCTURES
 // -----------------------------------------------------------------
 
+// Global quiz configuration - stores current version for reset functionality
+#[account]
+pub struct QuizConfig {
+    pub admin: Pubkey,             // Admin who can reset the quiz
+    pub quiz_version: u64,         // Current quiz version (incremented on reset)
+}
+
 // Quiz state account for tracking user progress
-// New rules: One-time quiz per account, 1 TAR for 80%+ correct (4/5 questions)
+// New rules: One-time quiz per account per version, 1 TAR for 80%+ correct
 #[account]
 pub struct QuizState {
     pub user: Pubkey,
-    pub total_questions: u64,      // Total questions in the quiz (5)
+    pub quiz_version: u64,         // Version of quiz when taken
+    pub total_questions: u64,      // Total questions in the quiz
     pub correct_answers: u64,      // Number of correct answers
     pub quiz_completed: bool,      // Has the user completed the quiz?
     pub tokens_awarded: bool,      // Has the reward been claimed?
 }
-
-// Quiz completion receipt - prevents retaking the quiz
-#[account]
-pub struct QuizCompletionReceipt {}
 
 // -----------------------------------------------------------------
 // 8. ACCOUNTS & CONTEXTS FOR 'complete_quiz'
 // -----------------------------------------------------------------
 #[derive(Accounts)]
 pub struct CompleteQuiz<'info> {
-    // The user's quiz state - created on first (and only) completion
+    // Global quiz config - needed to get current version
+    #[account(
+        seeds = [b"quiz_config"],
+        bump
+    )]
+    pub quiz_config: Account<'info, QuizConfig>,
+
+    // The user's quiz state - seeded by user AND version (allows retake on new version)
     #[account(
         init,
         payer = user,
-        space = 8 + 32 + 8 + 8 + 1 + 1, // disc + user + total_questions + correct_answers + quiz_completed + tokens_awarded
-        seeds = [b"quiz_state", user.key().as_ref()],
+        space = 8 + 32 + 8 + 8 + 8 + 1 + 1, // disc + user + quiz_version + total_questions + correct_answers + quiz_completed + tokens_awarded
+        seeds = [b"quiz_state", user.key().as_ref(), quiz_config.quiz_version.to_le_bytes().as_ref()],
         bump
     )]
     pub quiz_state: Account<'info, QuizState>,
-
-    // Completion receipt - prevents retaking the quiz (PDA ensures one per user)
-    #[account(
-        init,
-        payer = user,
-        space = 8, // Just the discriminator
-        seeds = [b"quiz_completion", user.key().as_ref()],
-        bump
-    )]
-    pub completion_receipt: Account<'info, QuizCompletionReceipt>,
 
     // The user's profile (for TAR balance tracking)
     #[account(
@@ -595,6 +623,42 @@ pub struct CompleteQuiz<'info> {
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
     pub associated_token_program: Program<'info, AssociatedToken>,
+}
+
+// -----------------------------------------------------------------
+// 9. ACCOUNTS & CONTEXTS FOR 'initialize_quiz_config'
+// -----------------------------------------------------------------
+#[derive(Accounts)]
+pub struct InitializeQuizConfig<'info> {
+    #[account(
+        init,
+        payer = admin,
+        space = 8 + 32 + 8, // disc + admin + quiz_version
+        seeds = [b"quiz_config"],
+        bump
+    )]
+    pub quiz_config: Account<'info, QuizConfig>,
+
+    #[account(mut)]
+    pub admin: Signer<'info>,
+
+    pub system_program: Program<'info, System>,
+}
+
+// -----------------------------------------------------------------
+// 10. ACCOUNTS & CONTEXTS FOR 'reset_quiz_version'
+// -----------------------------------------------------------------
+#[derive(Accounts)]
+pub struct ResetQuizVersion<'info> {
+    #[account(
+        mut,
+        seeds = [b"quiz_config"],
+        bump,
+        has_one = admin @ ErrorCode::Unauthorized
+    )]
+    pub quiz_config: Account<'info, QuizConfig>,
+
+    pub admin: Signer<'info>,
 }
 
 /*
